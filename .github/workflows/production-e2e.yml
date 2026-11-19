@@ -53,6 +53,7 @@ jobs:
             echo "::error::FlowDesk の画面が返っていません（Vercel の Deployment Protection がオンになっていないか確認してください）"
             exit 1
           fi
+      - run: npx playwright install --with-deps chromium
       - name: ブラウザでの E2E テスト（PC・スマートフォン）
         run: npx playwright test
         env:

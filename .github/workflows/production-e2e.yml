@@ -42,6 +42,17 @@ jobs:
             exit 1
           fi
           echo "E2E_BASE_URL=${INPUT_URL%/}" >> "$GITHUB_ENV"
+      - name: 公開サイトの応答の確認（FlowDesk の画面が返っているか）
+        run: |
+          for path in /login /about; do
+            out=$(curl -sSL -o page.html -w "%{http_code} %{url_effective}" "$E2E_BASE_URL$path")
+            title=$(grep -o "<title>[^<]*" page.html | head -1 | sed "s/<title>//")
+            echo "$path -> $out title=$title"
+          done
+          if ! grep -q "FlowDesk" page.html; then
+            echo "::error::FlowDesk の画面が返っていません（Vercel の Deployment Protection がオンになっていないか確認してください）"
+            exit 1
+          fi
       - run: npx playwright install --with-deps chromium
       - name: ブラウザでの E2E テスト（PC・スマートフォン）
         run: npx playwright test
